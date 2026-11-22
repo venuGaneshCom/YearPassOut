@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Year of Pass Timeline</title>
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --header-bg: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 920px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input[type="number"] {
+            width: 96px;
+            padding: 7px 10px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            min-width: 640px;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: none;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+        }
+
+        td {
+            font-size: 1rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+            transition: background-color 0.15s ease;
+        }
+
+        tbody tr:hover td {
+            background-color: #eff6ff;
+        }
+
+        td:last-child {
+            color: var(--accent);
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="card">
+        <div class="header">
+            <div>
+                <h1>Class-Wise Year of Pass</h1>
+                <p class="subtitle">Estimated passing years calculated backward from 10th class</p>
+            </div>
+            <div class="controls">
+                <label for="passYearInput">10th Pass Year</label>
+                <input type="number" id="passYearInput" value="2019" min="1900" max="2100">
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>1st class</th>
+                        <th>2nd class</th>
+                        <th>3rd class</th>
+                        <th>5th class</th>
+                        <th>6th class</th>
+                        <th>7th class</th>
+                        <th>8th class</th>
+                        <th>9th class</th>
+                        <th>10th class</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="table-data"></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const offsets = [-9, -8, -7, -5, -4, -3, -2, -1, 0];
+        const tableRow = document.getElementById("table-data");
+        const passYearInput = document.getElementById("passYearInput");
+
+        function renderYears(tenthPassYear) {
+            const year = Number(tenthPassYear);
+            if (!Number.isFinite(year)) return;
+
+            tableRow.innerHTML = "";
+            offsets.forEach((offset) => {
+                const td = document.createElement("td");
+                td.textContent = year + offset;
+                tableRow.appendChild(td);
+            });
+        }
+
+        passYearInput.addEventListener("input", (event) => {
+            renderYears(event.target.value);
+        });
+
+        renderYears(passYearInput.value);
+    </script>
+</body>
+
+</html>
