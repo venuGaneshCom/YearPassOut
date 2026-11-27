@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Year of Pass Timeline</title>
+    <title>Year of Pass Timeline & Grade Converter</title>
     <style>
         :root {
             --bg: #f4f6f9;
@@ -13,8 +13,11 @@
             --muted: #64748b;
             --accent: #2563eb;
             --accent-hover: #1d4ed8;
+            --accent-soft: #eff6ff;
             --border: #e2e8f0;
             --header-bg: #f8fafc;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
         }
 
         * {
@@ -53,9 +56,10 @@
             margin-bottom: 20px;
         }
 
-        h1 {
+        h1, h2 {
             font-size: 1.25rem;
             font-weight: 600;
+            color: var(--text);
         }
 
         .subtitle {
@@ -76,19 +80,27 @@
             color: var(--text);
         }
 
-        input[type="number"] {
-            width: 96px;
+        input[type="number"],
+        select {
             padding: 7px 10px;
             font-size: 0.9rem;
+            font-family: inherit;
             border: 1px solid var(--border);
             border-radius: 8px;
             color: var(--text);
+            background-color: var(--card-bg);
             outline: none;
-            transition: border-color 0.15s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
-        input[type="number"]:focus {
+        input[type="number"] {
+            width: 96px;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
         .table-wrapper {
@@ -138,18 +150,222 @@
         }
 
         tbody tr:hover td {
-            background-color: #eff6ff;
+            background-color: var(--accent-soft);
         }
 
         td:last-child {
             color: var(--accent);
-            background-color: #eff6ff;
+            background-color: var(--accent-soft);
+        }
+
+        /* Divider between Timeline and Converter */
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 28px 0 24px;
+        }
+
+        /* Grade Converter Styles */
+        .converter-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .formula-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .formula-control label {
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+
+        .formula-control select {
+            font-size: 0.8125rem;
+            padding: 6px 10px;
+            background-color: var(--header-bg);
+        }
+
+        .converter-box {
+            background-color: var(--header-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+        }
+
+        .input-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-pair select,
+        .input-pair input {
+            width: 100%;
+            height: 40px;
+            font-size: 0.95rem;
+        }
+
+        .input-pair input {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .validation-msg {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: var(--danger-bg);
+            border: 1px solid #fecaca;
+            color: var(--danger);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .validation-msg.visible {
+            display: block;
+        }
+
+        /* Live All-Metrics Breakdown Cards */
+        .metrics-breakdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--accent);
+        }
+
+        .metric-card.active-source {
+            border-color: var(--accent);
+            background-color: var(--accent-soft);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metric-badge {
+            font-size: 0.65rem;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background-color: var(--accent);
+            color: #ffffff;
+            font-weight: 600;
+            display: none;
+        }
+
+        .metric-card.active-source .metric-badge {
+            display: inline-block;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        .metric-card.active-source .metric-value {
+            color: var(--accent);
+        }
+
+        .metric-scale {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .formula-note {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .swap-btn {
+                width: 100%;
+                height: 36px;
+            }
+
+            .metrics-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 16px;
+            }
+
+            .input-pair {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-breakdown {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
     <main class="card">
+        <!-- Existing Class-Wise Year of Pass Section -->
         <div class="header">
             <div>
                 <h1>Class-Wise Year of Pass</h1>
@@ -182,10 +398,116 @@
                 </tbody>
             </table>
         </div>
+
+        <hr class="section-divider">
+
+        <!-- New Academic Grade & Percentage Converter Section -->
+        <section aria-labelledby="converter-heading">
+            <div class="converter-header">
+                <div>
+                    <h2 id="converter-heading">Grade &amp; Percentage Converter</h2>
+                    <p class="subtitle">Convert seamlessly between Percentage, CGPA, SGPA, and 4.0 GPA</p>
+                </div>
+                <div class="formula-control">
+                    <label for="multiplierSelect">10-Point Formula:</label>
+                    <select id="multiplierSelect" aria-label="10-Point Conversion Multiplier">
+                        <option value="9.5" selected>Standard CBSE / UGC (× 9.5)</option>
+                        <option value="10">Direct / Linear Scale (× 10)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="converter-box">
+                <div class="converter-grid">
+                    <!-- Convert From -->
+                    <div class="field-group">
+                        <label for="fromScale">Convert From</label>
+                        <div class="input-pair">
+                            <select id="fromScale">
+                                <option value="cgpa" selected>CGPA (10-Scale)</option>
+                                <option value="sgpa">SGPA (10-Scale)</option>
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="gpa">GPA (4.0-Scale)</option>
+                            </select>
+                            <input type="number" id="gradeInput" value="8.5" step="0.01" min="0" max="10" placeholder="Enter value">
+                        </div>
+                    </div>
+
+                    <!-- Swap Button -->
+                    <button type="button" id="swapBtn" class="swap-btn" title="Swap conversion scales" aria-label="Swap conversion scales">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 16V4M7 4L3 8M7 4L11 8"></path>
+                            <path d="M17 8V20M17 20L21 16M17 20L13 16"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Convert To -->
+                    <div class="field-group">
+                        <label for="toScale">Convert To</label>
+                        <div class="input-pair">
+                            <select id="toScale">
+                                <option value="percentage" selected>Percentage (%)</option>
+                                <option value="cgpa">CGPA (10-Scale)</option>
+                                <option value="sgpa">SGPA (10-Scale)</option>
+                                <option value="gpa">GPA (4.0-Scale)</option>
+                            </select>
+                            <div class="result-display" id="primaryResult" aria-live="polite">80.75%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inline Range Validation Message -->
+                <div id="validationMsg" class="validation-msg" role="alert"></div>
+
+                <!-- Live 4-Metric Equivalent Breakdown -->
+                <div class="metrics-breakdown">
+                    <div class="metric-card" id="card-percentage" data-scale="percentage" role="button" tabindex="0" title="Click to convert from Percentage">
+                        <div class="metric-label">
+                            <span>Percentage</span>
+                            <span class="metric-badge">Input</span>
+                        </div>
+                        <div class="metric-value" id="val-percentage">80.75%</div>
+                        <div class="metric-scale">Out of 100%</div>
+                    </div>
+
+                    <div class="metric-card" id="card-cgpa" data-scale="cgpa" role="button" tabindex="0" title="Click to convert from CGPA">
+                        <div class="metric-label">
+                            <span>CGPA</span>
+                            <span class="metric-badge">Input</span>
+                        </div>
+                        <div class="metric-value" id="val-cgpa">8.50</div>
+                        <div class="metric-scale">10.0 Point Scale</div>
+                    </div>
+
+                    <div class="metric-card" id="card-sgpa" data-scale="sgpa" role="button" tabindex="0" title="Click to convert from SGPA">
+                        <div class="metric-label">
+                            <span>SGPA</span>
+                            <span class="metric-badge">Input</span>
+                        </div>
+                        <div class="metric-value" id="val-sgpa">8.50</div>
+                        <div class="metric-scale">10.0 Point Scale</div>
+                    </div>
+
+                    <div class="metric-card" id="card-gpa" data-scale="gpa" role="button" tabindex="0" title="Click to convert from GPA">
+                        <div class="metric-label">
+                            <span>GPA</span>
+                            <span class="metric-badge">Input</span>
+                        </div>
+                        <div class="metric-value" id="val-gpa">3.40</div>
+                        <div class="metric-scale">4.0 Point Scale</div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </section>
     </main>
 
     <script>
-        const offsets = [-9, -8, -7,-6, -5, -4, -3, -2, -1, 0];
+        /* =========================================================
+           1. Class-Wise Year of Pass Timeline Logic
+           ========================================================= */
+        const offsets = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 0];
         const tableRow = document.getElementById("table-data");
         const passYearInput = document.getElementById("passYearInput");
 
@@ -206,6 +528,160 @@
         });
 
         renderYears(passYearInput.value);
+
+        /* =========================================================
+           2. Academic Grade & Percentage Converter Logic
+           ========================================================= */
+        const fromScaleEl = document.getElementById("fromScale");
+        const gradeInputEl = document.getElementById("gradeInput");
+        const validationMsgEl = document.getElementById("validationMsg");
+        const DEFAULT_MULTIPLIER = 9.5;
+
+        const scaleBounds = {
+            percentage: { min: 0, max: 100, label: "Percentage", suffix: "%" },
+            cgpa: { min: 0, max: 10, label: "CGPA", suffix: "" },
+            sgpa: { min: 0, max: 10, label: "SGPA", suffix: "" },
+            gpa: { min: 0, max: 4, label: "GPA (4.0)", suffix: "" }
+        };
+
+        function formatMetric(value, scale) {
+            if (!Number.isFinite(value)) return "—";
+            const rounded = Math.max(0, value).toFixed(2);
+            return scale === "percentage" ? `${rounded}%` : rounded;
+        }
+
+        function updateInputConstraints() {
+            const fromScale = fromScaleEl.value;
+            const bounds = scaleBounds[fromScale];
+            gradeInputEl.min = bounds.min;
+            gradeInputEl.max = bounds.max;
+        }
+
+        function calculateGrades() {
+            const fromScale = fromScaleEl.value;
+            const rawVal = gradeInputEl.value.trim();
+
+            // Highlight active source card
+            ["percentage", "cgpa", "sgpa", "gpa"].forEach((key) => {
+                const card = document.getElementById(`card-${key}`);
+                if (card) {
+                    card.classList.toggle("active-source", key === fromScale);
+                }
+            });
+
+            // Handle empty input gracefully
+            if (rawVal === "") {
+                validationMsgEl.classList.remove("visible");
+                document.getElementById("val-percentage").textContent = "—";
+                document.getElementById("val-cgpa").textContent = "—";
+                document.getElementById("val-sgpa").textContent = "—";
+                document.getElementById("val-gpa").textContent = "—";
+                return;
+            }
+
+            const inputVal = Number(rawVal);
+            const bounds = scaleBounds[fromScale];
+
+            // Validate input bounds
+            if (!Number.isFinite(inputVal) || inputVal < bounds.min || inputVal > bounds.max) {
+                validationMsgEl.textContent = `Please enter a valid ${bounds.label} between ${bounds.min} and ${bounds.max}.`;
+                validationMsgEl.classList.add("visible");
+                document.getElementById("val-percentage").textContent = "—";
+                document.getElementById("val-cgpa").textContent = "—";
+                document.getElementById("val-sgpa").textContent = "—";
+                document.getElementById("val-gpa").textContent = "—";
+                return;
+            }
+
+            validationMsgEl.classList.remove("visible");
+
+            // Normalize to a 10-point scale & percentage cleanly
+            let percentage = 0;
+            let tenPoint = 0;
+            let gpa4 = 0;
+
+            if (fromScale === "cgpa" || fromScale === "sgpa") {
+                tenPoint = inputVal;
+                percentage = Math.min(100, tenPoint * DEFAULT_MULTIPLIER);
+                gpa4 = (tenPoint / 10) * 4;
+            } else if (fromScale === "percentage") {
+                percentage = inputVal;
+                tenPoint = Math.min(10, percentage / DEFAULT_MULTIPLIER);
+                gpa4 = (percentage / 100) * 4;
+            } else if (fromScale === "gpa") {
+                gpa4 = inputVal;
+                tenPoint = (gpa4 / 4) * 10;
+                percentage = Math.min(100, tenPoint * DEFAULT_MULTIPLIER);
+            }
+
+            const results = {
+                percentage: percentage,
+                cgpa: tenPoint,
+                sgpa: tenPoint,
+                gpa: gpa4
+            };
+
+            // Preserve exact entered figure on the source metric card
+            results[fromScale] = inputVal;
+
+            // Update All 4 Breakdown Cards
+            document.getElementById("val-percentage").textContent = formatMetric(results.percentage, "percentage");
+            document.getElementById("val-cgpa").textContent = formatMetric(results.cgpa, "cgpa");
+            document.getElementById("val-sgpa").textContent = formatMetric(results.sgpa, "sgpa");
+            document.getElementById("val-gpa").textContent = formatMetric(results.gpa, "gpa");
+        }
+
+        function switchSourceScale(newScale) {
+            if (!scaleBounds[newScale]) return;
+            const currentValText = document.getElementById(`val-${newScale}`).textContent.replace("%", "");
+            const parsedVal = parseFloat(currentValText);
+
+            fromScaleEl.value = newScale;
+            updateInputConstraints();
+
+            if (Number.isFinite(parsedVal)) {
+                gradeInputEl.value = Number(parsedVal.toFixed(2));
+            } else {
+                const currentInput = parseFloat(gradeInputEl.value);
+                const bounds = scaleBounds[newScale];
+                if (Number.isFinite(currentInput) && currentInput > bounds.max) {
+                    gradeInputEl.value = bounds.max;
+                }
+            }
+            calculateGrades();
+        }
+
+        // Event Listeners
+        fromScaleEl.addEventListener("change", () => {
+            updateInputConstraints();
+            const currentVal = parseFloat(gradeInputEl.value);
+            const bounds = scaleBounds[fromScaleEl.value];
+            if (Number.isFinite(currentVal) && currentVal > bounds.max) {
+                gradeInputEl.value = bounds.max;
+            }
+            calculateGrades();
+        });
+
+        gradeInputEl.addEventListener("input", calculateGrades);
+
+        // Allow clicking any metric card to switch the active input scale
+        document.querySelectorAll(".metric-card").forEach((card) => {
+            card.addEventListener("click", () => {
+                switchSourceScale(card.dataset.scale);
+                gradeInputEl.focus();
+            });
+            card.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    switchSourceScale(card.dataset.scale);
+                    gradeInputEl.focus();
+                }
+            });
+        });
+
+        // Initial calculation on load
+        updateInputConstraints();
+        calculateGrades();
     </script>
 </body>
 
